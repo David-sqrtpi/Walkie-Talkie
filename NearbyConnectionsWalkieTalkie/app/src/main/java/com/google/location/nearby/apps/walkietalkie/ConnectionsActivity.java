@@ -424,7 +424,7 @@ public abstract class ConnectionsActivity extends AppCompatActivity {
     // Mark ourselves as connecting so we don't connect multiple times
     mIsConnecting = true;
 
-    // Ask to connect
+    // Ask to connectmConnectionLifecycleCallback
     mConnectionsClient
         .requestConnection(getName(), endpoint.getId(), mConnectionLifecycleCallback)
         .addOnFailureListener(

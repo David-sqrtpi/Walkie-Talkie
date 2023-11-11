@@ -55,7 +55,7 @@ import java.util.Set;
  * down the volume keys and speaking into the phone. We'll continue to advertise (if we were already
  * advertising) so that more people can connect to us.
  */
-public class MainActivity extends ConnectionsActivity implements SensorEventListener {
+public class MainActivity extends ConnectionsActivity /*implements SensorEventListener*/ {
   /** If true, debug logs are shown on the device. */
   private static final boolean DEBUG = true;
 
@@ -63,7 +63,7 @@ public class MainActivity extends ConnectionsActivity implements SensorEventList
    * The connection strategy we'll use for Nearby Connections. In this case, we've decided on
    * P2P_STAR, which is a combination of Bluetooth Classic and WiFi Hotspots.
    */
-  private static final Strategy STRATEGY = Strategy.P2P_STAR;
+  private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
 
   /** Acceleration required to detect a shake. In multiples of Earth's gravity. */
   private static final float SHAKE_THRESHOLD_GRAVITY = 2;
@@ -187,7 +187,7 @@ public class MainActivity extends ConnectionsActivity implements SensorEventList
   @Override
   protected void onStart() {
     super.onStart();
-    mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+//    mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
 
     // Set the media volume to max.
     setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -196,12 +196,13 @@ public class MainActivity extends ConnectionsActivity implements SensorEventList
     audioManager.setStreamVolume(
         AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
 
+    setState(State.ADVERTISING);
     setState(State.DISCOVERING);
   }
 
   @Override
   protected void onStop() {
-    mSensorManager.unregisterListener(this);
+//    mSensorManager.unregisterListener(this);
 
     // Restore the original volume.
     AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -238,9 +239,9 @@ public class MainActivity extends ConnectionsActivity implements SensorEventList
   @Override
   protected void onEndpointDiscovered(Endpoint endpoint) {
     // We found an advertiser!
-    if (!isConnecting()) {
+//    if (!isConnecting()) {
       connectToEndpoint(endpoint);
-    }
+//    }
   }
 
   @Override
@@ -284,7 +285,7 @@ public class MainActivity extends ConnectionsActivity implements SensorEventList
    * @param state The new state.
    */
   private void setState(State state) {
-    if (mState == state) {
+    if (mState == state && state != State.CONNECTED) {
       logW("State set to " + state + " but already in that state");
       return;
     }
@@ -314,17 +315,17 @@ public class MainActivity extends ConnectionsActivity implements SensorEventList
     // Update Nearby Connections to the new state.
     switch (newState) {
       case DISCOVERING:
-        if (isAdvertising()) {
+        /*if (isAdvertising()) {
           stopAdvertising();
         }
-        disconnectFromAllEndpoints();
+        disconnectFromAllEndpoints();*/
         startDiscovering();
         break;
       case ADVERTISING:
-        if (isDiscovering()) {
+        /*if (isDiscovering()) {
           stopDiscovering();
         }
-        disconnectFromAllEndpoints();
+        disconnectFromAllEndpoints();*/
         startAdvertising();
         break;
       case CONNECTED:
@@ -503,7 +504,7 @@ public class MainActivity extends ConnectionsActivity implements SensorEventList
   }
 
   /** The device has moved. We need to decide if it was intentional or not. */
-  @Override
+  /*@Override
   public void onSensorChanged(SensorEvent sensorEvent) {
     float x = sensorEvent.values[0];
     float y = sensorEvent.values[1];
@@ -519,20 +520,20 @@ public class MainActivity extends ConnectionsActivity implements SensorEventList
       logD("Device shaken");
       vibrate();
       setState(State.ADVERTISING);
-      postDelayed(mDiscoverRunnable, ADVERTISING_DURATION);
+      //postDelayed(mDiscoverRunnable, ADVERTISING_DURATION);
     }
-  }
+  }*/
 
-  @Override
+  /*@Override
   public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-  /** Vibrates the phone. */
+  *//** Vibrates the phone. *//*
   private void vibrate() {
     Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     if (hasPermissions(this, Manifest.permission.VIBRATE) && vibrator.hasVibrator()) {
       vibrator.vibrate(VIBRATION_STRENGTH);
     }
-  }
+  }*/
 
   /** {@see ConnectionsActivity#onReceive(Endpoint, Payload)} */
   @Override
